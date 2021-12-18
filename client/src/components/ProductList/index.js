@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { useQuery } from '@apollo/client';
+import { idbPromise } from "../../utils/helpers";
 
 import ProductItem from '../ProductItem';
 import { useStoreContext } from '../../utils/GlobalState';
@@ -15,13 +16,23 @@ function ProductList() {
   const { loading, data } = useQuery(QUERY_PRODUCTS);
 
   useEffect(() => {
-    if (data) {
+    if (categoryData) {
       dispatch({
-        type: UPDATE_PRODUCTS,
-        products: data.products,
+        type: UPDATE_CATEGORIES,
+        categories: categoryData.categories
+      });
+      categoryData.categories.forEach(category => {
+        idbPromise('categories', 'put', category);
+      });
+    } else if (!loading) {
+      idbPromise('categories', 'get').then(categories => {
+        dispatch({
+          type: UPDATE_CATEGORIES,
+          categories: categories
+        });
       });
     }
-  }, [data, dispatch]);
+  }, [categoryData, loading, dispatch]);
 
   function filterProducts() {
     if (!currentCategory) {
