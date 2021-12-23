@@ -1,11 +1,10 @@
 import React, { useEffect } from 'react';
-import { useQuery } from '@apollo/client';
-import { idbPromise } from "../../utils/helpers";
-
 import ProductItem from '../ProductItem';
 import { useStoreContext } from '../../utils/GlobalState';
 import { UPDATE_PRODUCTS } from '../../utils/actions';
+import { useQuery } from '@apollo/client';
 import { QUERY_PRODUCTS } from '../../utils/queries';
+import { idbPromise } from '../../utils/helpers';
 import spinner from '../../assets/spinner.gif';
 
 function ProductList() {
@@ -16,23 +15,23 @@ function ProductList() {
   const { loading, data } = useQuery(QUERY_PRODUCTS);
 
   useEffect(() => {
-    if (categoryData) {
+    if (data) {
       dispatch({
-        type: UPDATE_CATEGORIES,
-        categories: categoryData.categories
+        type: UPDATE_PRODUCTS,
+        products: data.products,
       });
-      categoryData.categories.forEach(category => {
-        idbPromise('categories', 'put', category);
+      data.products.forEach((product) => {
+        idbPromise('products', 'put', product);
       });
     } else if (!loading) {
-      idbPromise('categories', 'get').then(categories => {
+      idbPromise('products', 'get').then((products) => {
         dispatch({
-          type: UPDATE_CATEGORIES,
-          categories: categories
+          type: UPDATE_PRODUCTS,
+          products: products,
         });
       });
     }
-  }, [categoryData, loading, dispatch]);
+  }, [data, loading, dispatch]);
 
   function filterProducts() {
     if (!currentCategory) {

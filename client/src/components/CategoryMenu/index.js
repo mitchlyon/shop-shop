@@ -19,13 +19,20 @@ function CategoryMenu() {
     if (categoryData) {
       dispatch({
         type: UPDATE_CATEGORIES,
-        categories: categoryData.categories
+        categories: categoryData.categories,
       });
-      categoryData.categories.forEach(category => {
+      categoryData.categories.forEach((category) => {
         idbPromise('categories', 'put', category);
       });
+    } else if (!loading) {
+      idbPromise('categories', 'get').then((categories) => {
+        dispatch({
+          type: UPDATE_CATEGORIES,
+          categories: categories,
+        });
+      });
     }
-  }, [categoryData, dispatch]);
+  }, [categoryData, loading, dispatch]);
 
   const handleClick = (id) => {
     dispatch({
